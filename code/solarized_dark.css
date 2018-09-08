@@ -1,0 +1,24 @@
+body, li, ul, ol {
+    background-color: #002b36;
+    color: #eee8d5;
+}
+pre {
+    background-color: #002b36 !important;
+    color: #eee8d5;
+}
+.r {
+    background-color: #073642 !important;
+}
+tr.even {
+    background-color: #002b36 !important;
+}
+tr.odd{
+    background-color: #073642 !important;
+}
+input {
+    background-color: #586e75;
+}
+label, a, .dataTables_info {
+    color: #586e75 !important;
+}
+

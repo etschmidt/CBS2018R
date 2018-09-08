@@ -1,0 +1,49 @@
+---
+title: New Markdown
+author: Ethan T. Schmidt
+date: September 7, 2018
+output: 
+    html_document: 
+        number_sections: yes
+        self_containted: yes
+        css: solarized_dark.css
+---
+
+```{r settings,echo=FALSE}
+knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
+
+```
+
+
+# this is a section
+
+Sator arepo tenet opera rotas
+
+# second section 
+
+Start a new section with a new hashtag
+
+# Let's talk about subsections
+```{r}
+1 + 1
+```
+
+```{r}
+x <- 2
+x
+```
+
+```{r chunk_name,message=FALSE}
+tomato <- readr::read_csv(here::here('data/TomatoFirst.csv'))
+```
+
+```{r show_data}
+knitr::kable(tomato)
+```
+
+```{r}
+DT::datatable(tomato)
+```
+
+
+
