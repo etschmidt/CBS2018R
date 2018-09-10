@@ -1,0 +1,54 @@
+---
+title: Assignment 1 - R Bascics
+author: Ethan T. Schmidt
+date: September 7, 2018
+output: 
+    html_document: 
+        number_sections: yes
+        self_containted: yes
+        css: solarized_dark.css
+---
+
+```{r settings,echo=FALSE}
+knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
+```
+
+# Variable Types
+## What are the four main types of variables?
+```{r}
+class(20.3)
+class(FALSE)
+class("zebra")
+date <- as.Date("2018-09-10")
+class(date)
+```
+## What are two functions that can be used to determine a variable type?
+```{r}
+x <- 45
+class(x)
+is.numeric(x)
+```
+
+# Vectors
+## Create a vector of numbers from one to ten called numVec. 
+```{r}
+numVec <- 1:10
+numVec
+```
+## Use the sum function to calculate the sum of this vector.
+```{r}
+sum(numVec)
+```
+
+# Functions
+## Write a function that has two arguments. If the first argument is bigger, return the sum of the numbers. If the second argument is bigger, return the product of the numbers.
+
+# CSV
+## What data type does read_csv return?
+
+# Excel
+## What data type does read_excel return?
+
+# Importing Data
+## Read the acs_ny.csv data from https://jaredlander.com/data/Links to an external site.
+## Display for the first 10 rows and the last 10 rows.
