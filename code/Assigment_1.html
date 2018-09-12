@@ -170,27 +170,168 @@ numVec</code></pre>
 <h1><span class="header-section-number">3</span> Functions</h1>
 <div id="write-a-function-that-has-two-arguments.-if-the-first-argument-is-bigger-return-the-sum-of-the-numbers.-if-the-second-argument-is-bigger-return-the-product-of-the-numbers." class="section level2">
 <h2><span class="header-section-number">3.1</span> Write a function that has two arguments. If the first argument is bigger, return the sum of the numbers. If the second argument is bigger, return the product of the numbers.</h2>
+<pre class="r"><code>sum.or.product &lt;- function(x, y) {
+    if(is.numeric(x) &amp;&amp; is.numeric(y)) {
+        if(x &gt; y) {
+            return(x + y)
+        }
+        else if(x &lt; y) {
+            return(x * y)        
+        }
+        else {
+            print('These numbers are equal')
+        }
+    }
+    else {
+        print('These are not numbers')
+    }
+}
+
+sum.or.product(4, 3)</code></pre>
+<pre><code>## [1] 7</code></pre>
+<pre class="r"><code>sum.or.product(3, 4)</code></pre>
+<pre><code>## [1] 12</code></pre>
+<pre class="r"><code>sum.or.product(3, 3)</code></pre>
+<pre><code>## [1] &quot;These numbers are equal&quot;</code></pre>
+<pre class="r"><code>sum.or.product(&quot;dog&quot;, &quot;cat&quot;)</code></pre>
+<pre><code>## [1] &quot;These are not numbers&quot;</code></pre>
 </div>
 </div>
 <div id="csv" class="section level1">
 <h1><span class="header-section-number">4</span> CSV</h1>
 <div id="what-data-type-does-read_csv-return" class="section level2">
 <h2><span class="header-section-number">4.1</span> What data type does read_csv return?</h2>
+<pre class="r"><code>tomato &lt;- readr::read_csv(here::here('data/TomatoFirst.csv'))
+# tomato is a dataframe
+tomato</code></pre>
+<pre><code>## # A tibble: 16 x 11
+##    Round Tomato Price Source Sweet  Acid Color Texture Overall
+##    &lt;int&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1     1 Simps~  3.99 Whole~   2.8   2.8   3.7     3.4     3.4
+##  2     1 Tutto~  2.99 Pione~   3.3   2.8   3.4     3       2.9
+##  3     1 Tutto~  0.99 Pione~   2.8   2.6   3.3     2.8     2.9
+##  4     1 La Fe~  3.99 Shop ~   2.6   2.8   3       2.3     2.8
+##  5     2 Cento~  5.49 D Ago~   3.3   3.1   2.9     2.8     3.1
+##  6     2 Cento~  4.99 D Ago~   3.2   2.9   2.9     3.1     2.9
+##  7     2 La Va~  3.99 Shop ~   2.6   2.8   3.6     3.4     2.6
+##  8     2 La Va~  3.99 Faicos   2.1   2.7   3.1     2.4     2.2
+##  9     3 Stani~  4.53 Resta~   3.4   3.3   4.1     3.2     3.7
+## 10     3 Ciao   NA    Other    2.6   2.9   3.4     3.3     2.9
+## 11     3 Scott~  0    Home ~   1.6   2.9   3.1     2.4     1.9
+## 12     3 Di Ca~ 12.8  Eataly   1.7   3.6   3.8     2.3     1.4
+## 13     4 Trade~  1.49 Trade~   3.4   3.3   4       3.6     3.9
+## 14     4 365 W~  1.49 Whole~   2.8   2.7   3.4     3.1     3.1
+## 15     4 Muir ~  3.19 Whole~   2.9   2.8   2.7     3.2     3.1
+## 16     4 Biona~  3.39 Whole~   2.4   3.3   3.4     3.2     2.8
+## # ... with 2 more variables: `Avg of Totals` &lt;dbl&gt;, `Total of Avg` &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <div id="excel" class="section level1">
 <h1><span class="header-section-number">5</span> Excel</h1>
 <div id="what-data-type-does-read_excel-return" class="section level2">
 <h2><span class="header-section-number">5.1</span> What data type does read_excel return?</h2>
+<pre class="r"><code>tomatoXL &lt;- readxl::read_excel(here::here('data/ExcelExample.xlsx'))
+# tomatoXL is a dataframe
+tomatoXL</code></pre>
+<pre><code>## # A tibble: 16 x 11
+##    Round Tomato Price Source Sweet  Acid Color Texture Overall
+##    &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1     1 Simps~  3.99 Whole~   2.8   2.8   3.7     3.4     3.4
+##  2     1 Tutto~  2.99 Pione~   3.3   2.8   3.4     3       2.9
+##  3     1 Tutto~  0.99 Pione~   2.8   2.6   3.3     2.8     2.9
+##  4     1 La Fe~  3.99 Shop ~   2.6   2.8   3       2.3     2.8
+##  5     2 Cento~  5.49 D Ago~   3.3   3.1   2.9     2.8     3.1
+##  6     2 Cento~  4.99 D Ago~   3.2   2.9   2.9     3.1     2.9
+##  7     2 La Va~  3.99 Shop ~   2.6   2.8   3.6     3.4     2.6
+##  8     2 La Va~  3.99 Faicos   2.1   2.7   3.1     2.4     2.2
+##  9     3 Stani~  4.53 Resta~   3.4   3.3   4.1     3.2     3.7
+## 10     3 Ciao   NA    Other    2.6   2.9   3.4     3.3     2.9
+## 11     3 Scott~  0    Home ~   1.6   2.9   3.1     2.4     1.9
+## 12     3 Di Ca~ 12.8  Eataly   1.7   3.6   3.8     2.3     1.4
+## 13     4 Trade~  1.49 Trade~   3.4   3.3   4       3.6     3.9
+## 14     4 365 W~  1.49 Whole~   2.8   2.7   3.4     3.1     3.1
+## 15     4 Muir ~  3.19 Whole~   2.9   2.8   2.7     3.2     3.1
+## 16     4 Biona~  3.39 Whole~   2.4   3.3   3.4     3.2     2.8
+## # ... with 2 more variables: `Avg of Totals` &lt;dbl&gt;, `Total of Avg` &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <div id="importing-data" class="section level1">
 <h1><span class="header-section-number">6</span> Importing Data</h1>
 <div id="read-the-acs_ny.csv-data-from-httpsjaredlander.comdatalinks-to-an-external-site." class="section level2">
 <h2><span class="header-section-number">6.1</span> Read the acs_ny.csv data from <a href="https://jaredlander.com/data/Links" class="uri">https://jaredlander.com/data/Links</a> to an external site.</h2>
+<pre class="r"><code>url &lt;- 'https://jaredlander.com/data/acs_ny.csv'
+acs &lt;- read.table(file=url, header=TRUE, sep=&quot;,&quot;)</code></pre>
 </div>
 <div id="display-for-the-first-10-rows-and-the-last-10-rows." class="section level2">
 <h2><span class="header-section-number">6.2</span> Display for the first 10 rows and the last 10 rows.</h2>
+<pre class="r"><code>head(acs, 10)</code></pre>
+<pre><code>##    Acres FamilyIncome  FamilyType NumBedrooms NumChildren NumPeople
+## 1   1-10          150     Married           4           1         3
+## 2   1-10          180 Female Head           3           2         4
+## 3   1-10          280 Female Head           4           0         2
+## 4   1-10          330 Female Head           2           1         2
+## 5   1-10          330   Male Head           3           1         2
+## 6   1-10          480   Male Head           0           3         4
+## 7   1-10          520   Male Head           3           2         3
+## 8   1-10          550   Male Head           3           1         2
+## 9   1-10         1400 Female Head           3           1         4
+## 10  1-10         1400 Female Head           3           2         3
+##    NumRooms        NumUnits NumVehicles NumWorkers  OwnRent   YearBuilt
+## 1         9 Single detached           1          0 Mortgage   1950-1959
+## 2         6 Single detached           2          0   Rented Before 1939
+## 3         8 Single detached           3          1 Mortgage   2000-2004
+## 4         4 Single detached           1          0   Rented   1950-1959
+## 5         5 Single attached           1          0 Mortgage Before 1939
+## 6         1 Single detached           0          0   Rented Before 1939
+## 7         8     Mobile home           0          0 Mortgage   1980-1989
+## 8         5 Single detached           1          1   Rented        2007
+## 9         9 Single detached           2          1 Mortgage Before 1939
+## 10        7 Single detached           1          1 Mortgage   1980-1989
+##    HouseCosts ElectricBill FoodStamp HeatingFuel Insurance       Language
+## 1        1800           90        No         Gas      2500        English
+## 2         850           90        No         Oil         0        English
+## 3        2600          260        No         Oil      6600 Other European
+## 4        1800          140        No         Oil         0        English
+## 5         860          150        No         Gas       660        Spanish
+## 6         700          140        No         Gas         0        English
+## 7         270          130       Yes        Wood       100        English
+## 8         800            1       Yes         Gas         0        English
+## 9         710          150        No         Gas      1000        English
+## 10       1500          300        No Electricity         0        English</code></pre>
+<pre class="r"><code>tail(acs, 10)</code></pre>
+<pre><code>##       Acres FamilyIncome FamilyType NumBedrooms NumChildren NumPeople
+## 22736   10+       540500    Married           4           4         6
+## 22737   10+       546000    Married           2           0         2
+## 22738   10+       547800    Married           5           0         4
+## 22739   10+       549000    Married           3           2         4
+## 22740   10+       556250    Married           4           0         2
+## 22741   10+       565000    Married           5           3         5
+## 22742   10+       599000    Married           4           0         2
+## 22743   10+       611700    Married           4           1         5
+## 22744   10+       621430    Married           3           2         4
+## 22745   10+       751200    Married           4           2         4
+##       NumRooms        NumUnits NumVehicles NumWorkers  OwnRent   YearBuilt
+## 22736        9 Single detached           3          2 Mortgage   1990-1999
+## 22737        6 Single detached           2          2 Mortgage   1980-1989
+## 22738       11 Single detached           4          3 Mortgage Before 1939
+## 22739       11 Single detached           3          1 Mortgage Before 1939
+## 22740       10 Single detached           2          1 Mortgage Before 1939
+## 22741       10 Single detached           2          2 Mortgage   1990-1999
+## 22742        6 Single detached           2          2 Mortgage Before 1939
+## 22743        9 Single detached           5          3 Mortgage Before 1939
+## 22744       11 Single detached           2          3 Mortgage   1970-1979
+## 22745       10 Single detached           2          2 Mortgage   1940-1949
+##       HouseCosts ElectricBill FoodStamp HeatingFuel Insurance Language
+## 22736       6500          500        No         Gas      2400  English
+## 22737       1300          100        No         Oil      1900  English
+## 22738        500          100        No         Oil      1400  English
+## 22739       1000          200        No        Wood      1700  Spanish
+## 22740       1800          380        No         Oil      1700  English
+## 22741       1700          370        No         Gas      1000  English
+## 22742       1300          100        No         Gas      3500  English
+## 22743        410          100        No         Oil      1300  Spanish
+## 22744       1600           80        No         Gas       800  Spanish
+## 22745       6500          400        No         Oil      2000  English</code></pre>
 </div>
 </div>
 

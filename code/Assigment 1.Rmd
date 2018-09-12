@@ -42,13 +42,56 @@ sum(numVec)
 
 # Functions
 ## Write a function that has two arguments. If the first argument is bigger, return the sum of the numbers. If the second argument is bigger, return the product of the numbers.
+```{r}
+sum.or.product <- function(x, y) {
+    if(is.numeric(x) && is.numeric(y)) {
+        if(x > y) {
+            return(x + y)
+        }
+        else if(x < y) {
+            return(x * y)        
+        }
+        else {
+            print('These numbers are equal')
+        }
+    }
+    else {
+        print('These are not numbers')
+    }
+}
+
+sum.or.product(4, 3)
+sum.or.product(3, 4)
+sum.or.product(3, 3)
+sum.or.product("dog", "cat")
+```
 
 # CSV
 ## What data type does read_csv return?
+```{r}
+tomato <- readr::read_csv(here::here('data/TomatoFirst.csv'))
+# tomato is a dataframe
+tomato
+```
 
 # Excel
 ## What data type does read_excel return?
+```{r}
+tomatoXL <- readxl::read_excel(here::here('data/ExcelExample.xlsx'))
+# tomatoXL is a dataframe
+tomatoXL
+```
 
 # Importing Data
 ## Read the acs_ny.csv data from https://jaredlander.com/data/Links to an external site.
+```{r}
+url <- 'https://jaredlander.com/data/acs_ny.csv'
+acs <- read.table(file=url, header=TRUE, sep=",")
+```
+
 ## Display for the first 10 rows and the last 10 rows.
+```{r}
+head(acs, 10)
+tail(acs, 10)
+```
+
