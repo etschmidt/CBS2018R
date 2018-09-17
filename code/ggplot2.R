@@ -61,4 +61,31 @@ ggplot(diamonds, aes(x=price)) +
 ggplot(diamonds, aes(x=price)) +
     geom_density(aes(fill=cut), alpha=1/3) # each cut as color
 
-# Box plot
+# other plots
+ggplot(diamonds, aes(x=cut, y=price)) +
+    geom_boxplot()
+
+ggplot(diamonds, aes(x=cut, y=log(price))) +
+    geom_violin()
+
+ggplot(diamonds, aes(x=cut, y=price)) +
+    geom_jitter() + # adds spread to points for visulaization
+    geom_violin()
+
+ggplot(diamonds, aes(x=cut, y=price)) +
+    geom_jitter(alpha=1/3, shape=1, size=1, width=0.35, aes(color=carat)) + # adds spread to points for visulaization
+    geom_violin(alpha=1/2, draw_quantiles=c(0.25, 0.5,0.75)) +
+    scale_color_gradient('Diamond Size', low='#56b1f7',high='#c91010') +
+    labs(x='Cut', y='Price', title='Price v. Cut & Carat') +
+    theme_bw() +
+    scale_y_continuous(labels=scales::dollar)
+
+library(ggthemes)
+
+g <- ggplot(diamonds, aes(x=carat, y=price, color=cut))
+p <- g + geom_point()
+p + theme_economist() +
+    scale_color_economist()
+
+p + theme_tufte()
+p + theme_excel_new()
