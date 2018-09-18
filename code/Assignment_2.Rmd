@@ -44,8 +44,11 @@ ggplot(starwars, aes(x=height, y=log(mass))) +
 ```{r}
 ggplot(starwars, aes(x=birth_year)) +
     geom_histogram(binwidth = 10) +
+    scale_x_reverse() +
     theme_solarized_dark() +
     labs(x='Birth Year (Before Battle of Yavin)', y='# of Characters born', title='Birth Years in Star Wars')
+starwars %>% 
+    filter(birth_year > 150)
 ```
 
 ## Create density plots of heights faceted by gender. Change the ﬁll to something other than the default color, and use the theme theme_bw(). Be sure to let y-axis scales vary by gender.
