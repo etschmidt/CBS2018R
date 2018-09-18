@@ -24,3 +24,9 @@ input {
 label, a, .dataTables_info {
     color: #586e75 !important;
 }
+.hljs-number {
+    color: #c7254c;
+}
+.hljs-string {
+    color: #099;
+}

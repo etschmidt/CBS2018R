@@ -4,11 +4,10 @@ author: "Ethan T. Schmidt"
 date: "September 17, 2018"
 output: 
     html_document: 
-        number_sections: yes
+        number_sections: no
         self_containted: yes
         css: solarized_dark.css
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -26,25 +25,69 @@ theme_solarized_dark <- function() {
 }
 ```
 
-# Load the starwars dataset from the dplyr package. Create a scatter plot of characters' heights (x-axis) against their masses (y-axis). Be sure to label the axes and give the graph a title.
+## Load the starwars dataset from the dplyr package. Create a scatter plot of characters' heights (x-axis) against their masses (y-axis). Be sure to label the axes and give the graph a title.
 ```{r}
 data(starwars)
 starwars
 ggplot(starwars, aes(x=height, y=mass)) +
     geom_point() +
-    ggtitle('Characters\' Heights vs Mass') +
+    labs(x='Height (cm)', y='Mass (kg)', title='The Biggest in Star Wars') +
     theme_solarized_dark()
 ```
-# Create a histogram of birth year of starwars characters' birth year.
-```{r}
 
+## Create a histogram of birth year of starwars characters' birth year.
+```{r}
 ggplot(starwars, aes(x=birth_year)) +
     geom_histogram(binwidth = 10) +
+    theme_solarized_dark() +
+    labs(x='Birth Year (BBY)', y='# of Characters born', title='Birth Years in Star Wars')
+```
+
+## Create density plots of heights faceted by gender. Change the ﬁll to something other than the default color, and use the theme theme_bw(). 
+#Be sure to let y-axis scales vary by gender.
+```{r}
+starwars_gen <- starwars %>% filter(gender %in% c('female', 'male') | (is.na(gender)))
+ggplot(starwars_gen, aes(x=height)) +
+    geom_density(color="darkslategrey", alpha=1/3) +
+    facet_wrap(~gender) +
+    theme_bw()
+```
+
+## Create a violin plot of characters' heights if they are of species type “Human”, “Droid”, “Wookiee”, or “Yoda’s species”. Use the 
+#economist theme in the ggthemes package.
+```{r}
+starwars_spec <- starwars %>% filter(species %in% c('Human', 'Droid', 'Wookie', 'Yoda\'s species'))
+ggplot(starwars_spec, aes(x=species, y=height)) +
+    geom_violin() +
     theme_solarized_dark()
 ```
-# Create density plots of heights faceted by gender. Change the ﬁll to something other than the default color, and use the theme theme_bw(). Be sure to let y-axis scales vary by gender.
-# Create a violin plot of characters' heights if they are of species type “Human”, “Droid”, “Wookiee”, or “Yoda’s species”. Use the economist theme in the ggthemes package.
-# Use the contains function to select columns from the flights dataset in the nycflights13 package, that contain the word "dep". Use starts_with to select columns that start with the letter "S". Read Chapter 12 if you are uncertain about these functions.
-# Calculate the mean and standard deviation of dep_delay, arr_delay, air_time and distance, for each origin, in the flights dataset. Be sure to account for missing (NA) values. Chapter 4 discusses ways to deal with NAs.
-# Use filter to return rows from the flights dataset that originate in JFK and depart in the afternoon.
-# Create a new column in the flights dataset showing the average speed, calculated as distance divided by air_time. Name the column "AvgSpeed". Use this column to calculate the average speed for flights departing each of the NYC airports.
+
+## Use the contains function to select columns from the flights dataset in the nycflights13 package, that contain the word "dep". Use starts_with to select columns that start with the letter "S". Read Chapter 12 if you are uncertain about these functions.
+```{r}
+data(flights, package='nycflights13')
+flights %>% select(contains('dep'), starts_with('s'))
+```
+
+## Calculate the mean and standard deviation of dep_delay, arr_delay, air_time and distance, for each origin, in the flights dataset. Be sure to account for missing (NA) values. Chapter 4 discusses ways to deal with NAs.
+```{r}
+flights %>% 
+    na.omit() %>% 
+    group_by(origin) %>% 
+    summarize(AvDepDel=mean(dep_delay), AvArDel=mean(arr_delay), AvAT=mean(air_time), AvDis=mean(distance))
+        
+```
+
+## Use filter to return rows from the flights dataset that originate in JFK and depart in the afternoon.
+```{r}
+flights %>% 
+    filter(origin=='JFK' & dep_time > 1200)
+```
+
+## Create a new column in the flights dataset showing the average speed, calculated as distance divided by air_time. Name the column "AvgSpeed". Use this column to calculate the average speed for flights departing each of the NYC airports.
+```{r}
+flights %>% 
+    na.omit() %>% 
+    mutate(AvgSpeed=distance/air_time) %>% 
+    group_by(origin) %>% 
+    summarize(AirportAvgSpeed=mean(AvgSpeed))
+```
