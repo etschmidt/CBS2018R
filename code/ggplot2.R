@@ -89,3 +89,4 @@ p + theme_economist() +
 
 p + theme_tufte()
 p + theme_excel_new()
+
