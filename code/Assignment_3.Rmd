@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: 
+    html_document: 
+        number_sections: no
+        self_containted: yes
+        css: solarized_dark.css
+---
+
+```{r settings,echo=FALSE}
+knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
+```
+## Read the PizzaPlaces.json file from www.jaredlander.com/data into a tibble, ensuring that each variable is in its own column. Display the data.
+```{r}
+library(readr)
+library(jsonlite)
+library(tidyr)
+
+placesFrame <- fromJSON(
+    'http://www.jaredlander.com/data/PizzaPlaces.json', 
+    simplifyDataFrame = TRUE
+)
+
+places <- placesFrame %>% unnest()
+head(places)
+```
+## Load the diamonds data from the ggplot2 package and calculate the mean for each of the numeric columns using summarize from the dplyr package.
+```{r}
+library(dplyr)
+data(diamonds, package='ggplot2')
+diamonds %>% summarize_all(funs(mean))
+```
+## Select just the numeric columns from diamonds and calculate the mean of each, by iterating with the map function. The secret is to treat the tibble as a list, where each column is simply a vector in a list.
+```{r}
+library(purrr)
+diamonds %>% 
+    select_if(is.numeric) %>% 
+    map_dbl(mean)
+
+```
+## Repeat the same operation but use map_df to return a tibble instead of a list. Rather than manually select columns, use map_if or summarize_if to iterate over only the numeric columns.
+```{r}
+library(purrr)
+diamonds %>% 
+    select_if(is.numeric) %>% 
+    map_df(mean)
+```
+## Use the WDI package to download the per capita GDP (the indicator is “NY.GDP.PCAP.KD”) for five countries of your choosing from 2000 to 2016. Then use spread from the tidyr package to convert it from long to wide format. There should be a column for each year.
+```{r}
+library(WDI)
+gdp <- WDI(country = c("VU", "TO", "FJ", "FM", "SB"), indicator = "NY.GDP.PCAP.KD", start = 2000,
+end = 2016, extra = FALSE, cache = NULL)
+
+gdpWide <- gdp %>% 
+    spread(key=year, value=NY.GDP.PCAP.KD)
+gdpWide
+```
+## Load the airquality data from the datasets package and use gather from tidyr to convert it from wide format to long format where one column lists Ozone, Solar.R, Wind and Temp and another column lists the corresponding values. Month and Day should be in their own columns.
+```{r}
+data(airquality, package='openair')
+head(airquality)
+airQualLong <- airquality %>%
+    gather(key=Attribute, value=Results,
+           Ozone, Solar.R, Wind, Temp
+           ) %>% 
+    dplyr::arrange(Month, Day)
+airQualLong %>% head(10)
+```
+
+## Read the GovType.csv file from www.jaredlander.com/data. Perform a left join of this data onto the gdp data based on the country/Country columns.
+```{r}
+types <- read_csv(
+    'https://www.jaredlander.com/data/GovType.csv'
+)
+
+gdpGovs <- left_join(gdpWide, types, by = c("country" = "Country"))
+gdpGovs
+```
+

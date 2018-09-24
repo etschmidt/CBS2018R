@@ -1,0 +1,9 @@
+base
+readr
+jsonlite
+tidyr
+dplyr
+bindrcpp
+purrr
+RJSONIO
+WDI
