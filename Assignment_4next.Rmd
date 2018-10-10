@@ -1,0 +1,116 @@
+---
+title: "Assignment 4"
+output: 
+    html_document: 
+        number_sections: yes
+        self_containted: yes
+        
+---
+
+```{r settings,echo=FALSE}
+knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
+```
+
+# Estimate a Lasso model of FamilyIncome from the acs data at https://www.jaredlander.com/data/acs_ny.csv (Links to an external site.)Links to an external site. (use read.table to read the data since it works better for this file than read_csv). 
+```{r}
+income_data <- read.table(file='https://www.jaredlander.com/data/acs_ny.csv', header=TRUE, sep=',')
+head(income_data)
+```
+## Use the cross-validated Lasso function (cv.glmnet) in the glmnetpackage, and the build.x and build.y functions in the useful package as shown in class. Do not include FoodStamp as a predictor. 
+
+```{r}
+library(glmnet)
+
+incomeFormula <- FamilyIncome ~ Acres + FamilyType + NumBedrooms + NumChildren + NumPeople + NumUnits + NumVehicles + NumWorkers + OwnRent + YearBuilt + HouseCosts + ElectricBill + HeatingFuel + Insurance + Language
+
+incomeX_train <- build.x(incomeFormula, data=income_data, 
+                      contrast=FALSE, sparse=TRUE)
+
+incomeY_train <- build.y(incomeFormula, data=income_data)
+
+income1 <- cv.glmnet(x=incomeX_train, y=incomeY_train, family='gaussian', nfolds=5)
+```
+
+## Plot the cross-validation curve and comment on what it represents. Plot the shrinkage path and comment on what this plot represents.
+```{r}
+coefpath(income1)
+```
+
+# For the above estimated model, which variables does Lasso select under lambda.min and lambda.1se? Present coeﬃcients for both models.
+```{r}
+coefplot(income1, sort='magnitude', lambda='lambda.1se')
+```
+```{r}
+coefplot(income1, sort='magnitude', lambda='lambda.min')
+```
+
+## Which one selects fewer variables and why? Show the coefplot for both values of lambda Present both the lambda values from the above estimated model. In your own words what do these parameters represent?
+```{r}
+income1$lambda.1se
+```
+```{r}
+income1$lambda.min
+```
+
+# Estimate a Ridge model of the same dataset as before. 
+```{r}
+plot(income1)
+```
+
+## How do the coeﬃcients diﬀer from the lambda.1se coeﬃcients? Show them both numerically and as a coefficient plot.
+```{r}
+# I don't eknow what to do here
+```
+
+# Estimate a boosted tree model over the same data as before. Since this is for continuous data be sure to set appropriate objective and eval_metric arguments. Use a random portion of the data as a validation set for the watchlist. Also see which settings for max_depth, eta and nrounds work best based on validation error. 
+```{r}
+# create sample size of 20% for validation
+# set.seed
+samp.size = floor(0.8 * nrow(income_data))
+train.ind <- sample(seq_len(nrow(income_data)), size = samp.size)
+income_train = income_data[train.ind, ]
+income_val = income_data[-train.ind, ]
+
+library(xgboost)
+
+incomeX_train = build.x(incomeFormula, data=income_train, contrasts=FALSE, sparse=TRUE)
+incomeY_train = build.y(incomeFormula, data=income_train)
+
+incomeX_val = build.x(incomeFormula, data=income_val, contrasts=FALSE, sparse=TRUE)
+incomeY_val = build.y(incomeFormula, data=income_val)
+
+xgTrain <- xgb.DMatrix(data=incomeX_train, label=incomeY_train) # holds x and y matrices
+
+xgVal <- xgb.DMatrix(data=incomeX_val, label=incomeY_val)
+
+incomeBoost <- xgb.train(
+    data=xgTrain, 
+    objective='reg:linear',
+    nrounds=300,
+    eval_metric='rmse',
+    eta=0.1,
+    watchlist=list(train=xgTrain, validate=xgVal), 
+    early_stopping_rounds = 10
+)
+
+```
+
+## Create a variable importance plot and comment on the top three predictors. Plot the training and validation loss (stored in the evaluation_log slot of the model) with dygraphs.
+```{r}
+xgb.plot.importance(xgb.importance(incomeBoost, feature_names=colnames(incomeX_train)), top_n = 3)
+```
+
+# Download the 2015 NFL Play-by-Play data from https://www.jaredlander.com/data/pbp-2015.csv (Links to an external site.)Links to an external site.
+```{r}
+
+```
+
+## Filter the data down to just one team and when PlayType is either ‘RUSH’ or ‘PASS’ and convert those to 0 and 1. Using a number of columns, create the appropriate X and Y matrices and xgb.DMatrix objects to fit an XGBoost model. 
+```{r}
+
+```
+
+## Use a random portion of the data as a validation set for the watchlist. Be sure to set appropriate objective and eval_metric arguments abd choose good max_depth, eta and nrounds settings. Plot variable importance and the training and validation loss.
+```{r}
+
+```

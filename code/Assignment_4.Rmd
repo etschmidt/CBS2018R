@@ -1,0 +1,107 @@
+---
+title: "Assignment 4"
+output: 
+    html_document: 
+        number_sections: yes
+        self_containted: yes
+        css: solarized_dark.css
+---
+
+```{r settings,echo=FALSE}
+knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
+```
+
+# Read the NYC Pluto data about land value from in Manhattan from https://query.data.world/s/WuYif0WbZCxzOLjLh95TY9rK--Tw64 (Links to an external site.)Links to an external site.. Ignore any warnings caused by using read_csv if you use that function. The data contain characteristic information about individual lots in Manhattan. We want to model the value of lots (TotalValue) as a function of its characteristics.
+```{r}
+# land data set
+land <- readRDS(here::here('data', 'manhattan_Train.rds'))
+```
+
+
+## First, generate summary statistics of variables you find interesting and build plots to help you explore the data. Choose the type of plot that makes the most sense to you.
+```{r}
+# choosing variable for model
+land1 <- lm(TotalValue ~ LotArea + NumFloors + ZoneDist1 + PolicePrct + Built + Class, data=land)
+summary(land1)
+```
+```{r}
+library(ggplot2)
+library(ggthemes)
+theme_solarized_dark <- function() {
+    theme_dark() +
+        theme(
+            plot.background = element_rect(fill = "#073642"), 
+            axis.text = element_text(color = '#eee8d5'), 
+            text = element_text(color = '#eee8d5'))
+}
+
+# plot x and y
+ggplot(land1, aes(x=LotArea, y=TotalValue)) +
+        geom_point() +
+        scale_x_log10(labels = scales::comma) +
+        theme_solarized_dark()
+```
+
+## Next, regress TotalValue against FireService, LotArea, LotFront and HistoricDistrict. Visualize with a coefficient plot and interpret each coeﬃcient in your own words.
+```{r}
+land2 <- lm(TotalValue ~ FireService + LotArea + LotFront + HistoricDistrict, data=land)
+summary(land2)
+```
+```{r}
+# The value of the property goes down quite a bit if near a fire station, even more so if near a fire squad unit
+# Value increases with both lot size and fascade size, as well as if in a Historic District, although not as much
+```
+
+# Continue modeling the Pluto data until the BIC of the model is below 1,040,000. Show a coefficient plot of the final model. Then display a coefficient plot, with multiplot, showing both the previous model and this model.
+```{r}
+BIC(land1, land2)
+```
+```{r}
+# Got it good on first try!
+# graph it
+library(coefplot)
+multiplot(land1, land2, sort='magnitude')
+```
+
+# Load the orings dataset from the DAAG package. The dataset contains information on characteristics of space shuttle launches in the early 1980s, and the number and type of 45 O-ring failures. Investigate whether the temperature at launch has an impact on the probability of O-ring failure using binary (logistic) regression.
+```{r}
+install.packages('DAAG')
+data(orings, package='DAAG')
+```
+
+## First, use mutate (or some other method) to create a binary variable indicating whether there is any erosion (Erosion) or blow-by (Blowby).
+```{r}
+library(dplyr)
+orings1 <- orings %>%
+    mutate(EorB=ifelse(Blowby > 0 | Erosion > 0, TRUE, FALSE))
+head(orings1)
+```
+## Next, train a binary regression where this new variable is the response and Temperature is a predictor. Does Temperature impact the risk of o-ring failure?
+```{r}
+orings2 <- glm(EorB ~ Temperature, 
+               data=orings1, 
+               family=binomial)
+summary(orings2)
+```
+```{r}
+# The colder it gets, the greater the risk of O-ring failure
+```
+# Load the DoctorAUS dataset from the Ecdat package. Use Poisson regression to model the number of doctor visits (doctorco). 
+## Report the BIC and display a coefficient plot on the original scale by setting the trans argument of coefplot to the appropriate inverse function. This requires reading section 20.2.
+```{r}
+data(DoctorAUS, package='Ecdat')
+DoctorAUS1 <- glm(doctorco ~ sex + age + income + insurance + illness, 
+                 family='poisson', data=DoctorAUS)
+BIC(DoctorAUS1)
+```
+```{r}
+coefplot(DoctorAUS1, trans=invlogit)
+```
+
+## Model the number of doctor visits again and account for overdispersion by using a quasipoisson family. Report the overdispersion parameter and display a multiplot of the previous model and this one.
+```{r}
+DoctorAUS2 <- glm(doctorco ~ sex + age + income + insurance + illness, 
+                 family='quasipoisson', data=DoctorAUS)
+multiplot(DoctorAUS1, DoctorAUS2)
+```
+
