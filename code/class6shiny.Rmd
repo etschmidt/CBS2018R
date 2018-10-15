@@ -1,0 +1,106 @@
+---
+title: "Shiny in Markdown"
+author: Ethan T. Schmidt
+output: 
+    html_document
+runtime: shiny
+---
+
+# Select Input
+
+```{r select-input}
+selectInput(
+    inputId = 'CountrySelection',
+    label = 'Please Choose a Country',
+    choices = list('USA', 'Colombia', 'Thailand', 'Armenia')
+)
+```
+
+```{r print-state}
+renderText(input$CountrySelection)
+```
+
+# Other Inputs
+```{r other-inputs}
+sliderInput(
+    inputId = 'SliderSample',
+    label = 'this is a slider',
+    min=0, max=10, value=5
+)
+
+checkboxInput(
+    inputId = 'Sample',
+    label = 'check this'
+)
+radioButtons(
+    inputId = 'RadioButtons', 
+    label = 'these are buttons', 
+    choices = list('Sator', 'Arepo', 'Tenet')
+)
+dateInput(
+    inputId = 'DatePicker',
+    label = 'Pick a date'
+)
+```
+
+# Text Input
+
+```{r}
+textInput(
+    inputId = 'textInput',
+    label= 'Write Something', 
+    placeholder = 'Enter words'
+)
+passwordInput(
+    inputId = 'passwordInput',
+    label = 'enter secrets here'
+)
+```
+
+```{r}
+renderText(input$passwordInput)
+```
+
+# Show Data
+
+```{r render-tables}
+renderTable(mtcars)
+
+renderDataTable(mtcars)
+
+DT::renderDataTable(mtcars)
+```
+
+# Plots
+```{r render-plot}
+renderPlot(hist(mtcars$mpg))
+```
+
+```{r render-choices, echo=FALSE}
+selectInput(
+    inputId='PlotColumn', 
+    label='Choose a column', 
+    choices=names(mtcars)
+)
+
+sliderInput(
+    inputId='Bins',
+    label='Choose number of bins',
+    min=5, max=50, value=30
+)
+
+selectInput(
+    inputId = 'color', 
+    label = 'choose a color', 
+    choices=list('blue', 'green', 'red')
+)
+
+library(ggplot2)
+
+renderPlot(
+    ggplot(mtcars, aes_string(x=input$PlotColumn)) +
+        geom_histogram(bins=input$Bins, fill=input$color)
+        
+)
+```
+

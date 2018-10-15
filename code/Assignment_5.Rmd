@@ -12,7 +12,6 @@ knitr::opts_chunk$set(message=FALSE,cache=TRUE,error=TRUE)
 
 # Estimate a Lasso model of FamilyIncome from the acs data at https://www.jaredlander.com/data/acs_ny.csv (Links to an external site.)Links to an external site. (use read.table to read the data since it works better for this file than read_csv). 
 ```{r}
-
 library(magrittr)
 
 library(glmnet)
@@ -20,69 +19,83 @@ library(glmnet)
 income_data <- read.table(file='https://www.jaredlander.com/data/acs_ny.csv', header=TRUE, sep=',')
 head(income_data)
 ```
-## Use the cross-validated Lasso function (cv.glmnet) in the glmnetpackage, and the build.x and build.y functions in the useful package as shown in class. Do not include FoodStamp as a predictor. 
+## Use the cross-validated Lasso function (cv.glmnet) in the glmnet package, and the build.x and build.y functions in the useful package as shown in class. Do not include FoodStamp as a predictor. 
 
 ```{r}
-incomeFormula <- FamilyIncome ~ Acres + FamilyType + NumBedrooms + NumChildren + NumPeople + NumUnits + NumVehicles + NumWorkers + OwnRent + YearBuilt + HouseCosts + ElectricBill + HeatingFuel + Insurance + Language - 1
+incomeFormula <- FamilyIncome ~ Acres + FamilyType + NumBedrooms + NumChildren + NumPeople + NumRooms + NumUnits + NumVehicles + NumWorkers + OwnRent + YearBuilt + HouseCosts + ElectricBill + HeatingFuel + Insurance + Language - 1
 
 incomeX_train <- build.x(incomeFormula, data=income_data, 
                       contrast=FALSE, sparse=TRUE)
 
 incomeY_train <- build.y(incomeFormula, data=income_data)
 
-income1 <- cv.glmnet(x=incomeX_train, y=incomeY_train, family='gaussian', nfolds=5)
+income1 <- cv.glmnet(x=incomeX_train, y=incomeY_train, family='gaussian', nfolds=5, alpha=1)
 ```
 
-## Plot the cross-validation curve and comment on what it represents. Plot the shrinkage path and comment on what this plot represents.
+## Plot the cross-validation curve and comment on what it represents.
 ```{r}
 library(coefplot)
-
+plot(income1)
+```
+## Plot the shrinkage path and comment on what this plot represents.
+```{r}
 coefpath(income1)
+```
+```{r}
+# this plot shows the weights of the variables at different lambdas. As lambda increases, they shrink towards zero. 
 ```
 
 # For the above estimated model, which variables does Lasso select under lambda.min and lambda.1se? Present coeﬃcients for both models. Which one selects fewer variables and why? Show the coefplot for both values of lambda.
 ```{r}
 library(coefplot)
 
-coefplot(income1, sort='magnitude', lambda='lambda.1se')
+coefplot(income1, sort='magnitude', lambda='lambda.min')
 ```
+
 ```{r}
 library(coefplot)
 
-coefplot(income1, sort='magnitude', lambda='lambda.min')
+coefplot(income1, sort='magnitude', lambda='lambda.1se')
 ```
 
 ## Present both the lambda values from the above estimated model. In your own words what do these parameters represent?
 ```{r}
 library(coefplot)
 
-income1$lambda.1se
+income1$lambda.min
 ```
 ```{r}
 library(coefplot)
 
-income1$lambda.min
+income1$lambda.1se
+```
+```{r}
+# the first of these values represents the value of lambda, the appropriate shrinkage, that produces the lowest mean squared error on the model and the values of the coefficients at that lambda.
+# The second value is the highest level of shrinkage that is still within 1 standard error of the first model; this model has fewer variables and is simpler.
 ```
 
 # Estimate a Ridge model of the same dataset as before. 
 ```{r}
 library(coefplot)
 
-plot(income1)
+income2 <- cv.glmnet(x=incomeX_train, y=incomeY_train, family='gaussian', nfolds=5, alpha=0)
+coefpath(income2)
 ```
 
 ## How do the coeﬃcients diﬀer from the lambda.1se coeﬃcients? Show them both numerically and as a coefficient plot.
 ```{r}
-# I don't eknow what to do here
+library(coefplot)
+
+coefplot(income2, sort='magnitude', lambda='lambda.1se')
 ```
 
 # Estimate a boosted tree model over the same data as before. Since this is for continuous data be sure to set appropriate objective and eval_metric arguments. Use a random portion of the data as a validation set for the watchlist. Also see which settings for max_depth, eta and nrounds work best based on validation error. 
-```{r}
+```{r message=FALSE}
 library(useful)
 library(xgboost)
 
 # create sample size of 20% for validation
-# set.seed
+
 samp.size = floor(0.8 * nrow(income_data))
 train.ind <- sample(seq_len(nrow(income_data)), size = samp.size)
 income_train = income_data[train.ind, ]
@@ -101,23 +114,28 @@ xgVal <- xgb.DMatrix(data=incomeX_val, label=incomeY_val)
 incomeBoost <- xgb.train(
     data=xgTrain, 
     objective='reg:linear',
-    nrounds=300,
+    nrounds=400,
     eval_metric='rmse',
     eta=0.1,
+    max_depth=4,
     watchlist=list(train=xgTrain, validate=xgVal), 
-    early_stopping_rounds = 10
+    early_stopping_rounds=50
 )
 
 ```
 
 ## Create a variable importance plot and comment on the top three predictors. Plot the training and validation loss (stored in the evaluation_log slot of the model) with dygraphs.
 ```{r}
-library(useful)
 library(xgboost)
 
 xgb.plot.importance(xgb.importance(incomeBoost, feature_names=colnames(incomeX_train)), top_n = 3)
 ```
+## Plot the training and validation loss (stored in the evaluation_log slot of the model) with dygraphs.
+```{r}
+library(dygraphs)
 
+dygraph(incomeBoost$evaluation_log)
+```
 # Download the 2015 NFL Play-by-Play data from https://www.jaredlander.com/data/pbp-2015.csv (Links to an external site.)Links to an external site.
 ```{r}
 play_data <- read.table(file='https://www.jaredlander.com/data/pbp-2015.csv', header=TRUE, sep=',')
@@ -138,16 +156,17 @@ play_data <- play_data %>%
     mutate(RorP = ifelse(PlayType == 'RUSH', 0, 1))
 table(play_data$RorP) # 50% more likely to pass overall
 ```
-```{r}
+```{r message=FALSE}
 library(useful)
 library(xgboost)
 
+# split the data into train & val sets
 samp.size = floor(0.8 * nrow(play_data))
 train.ind <- sample(seq_len(nrow(play_data)), size = samp.size)
 play_train = play_data[train.ind, ]
 play_val = play_data[-train.ind, ]
 
-# make formula
+# make formula 
 playFormula <- RorP ~ Quarter + Minute + DefenseTeam + Down + ToGo + YardLine + SeriesFirstDown + SeasonYear + Formation
 
 playX_train = build.x(playFormula, data=play_train, contrasts=FALSE, sparse=TRUE)
@@ -163,11 +182,12 @@ xgPlayVal <- xgb.DMatrix(data=playX_val, label=playY_val)
 playBoost <- xgb.train(
     data=xgPlayTrain, 
     objective='binary:logistic',
-    nrounds=300,
+    nrounds=500,
     eval_metric='rmse',
-    eta=0.1,
+    eta=0.15,
+    max_depth=3,
     watchlist=list(train=xgPlayTrain, validate=xgPlayVal), 
-    early_stopping_rounds = 10
+    early_stopping_rounds = 20
 )
 ```
 

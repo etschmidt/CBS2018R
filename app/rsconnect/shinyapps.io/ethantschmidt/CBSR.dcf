@@ -1,0 +1,12 @@
+name: CBSR
+title: CBSR
+username:
+account: ethantschmidt
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 515471
+bundleId: 1644439
+url: https://ethantschmidt.shinyapps.io/CBSR/
+when: 1539635070.72186
+asMultiple: FALSE
+asStatic: FALSE

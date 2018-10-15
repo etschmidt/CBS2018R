@@ -14,10 +14,7 @@ valueFormula <- TotalValue ~ FireService + ZoneDist1 + ZoneDist2 +
 
 value1 <- lm(valueFormula, data=land_train)
 
-coefplot(value1, sort='magnitude')
-
-landX_train <- build.x(valueFormula, data=land_train, 
-                      contrast=FALSE, sparse=TRUE) #contrast=FALSE removes dummy variable baseline
+coefplot(value1, sort='magnitude', lambda='lamnda.min')
 
 landY_train <- build.y(valueFormula, data=land_train)
 
