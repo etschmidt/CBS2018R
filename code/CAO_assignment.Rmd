@@ -1,0 +1,39 @@
+---
+title: "CAO Sales Data"
+author: "Ethan T. Schmidt"
+date: "November 6, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## First, identify which product has had the highest revenue growth rate over the last 4 years, and outline major contributing factors to that growth. 
+
+Read in Excel Data
+```{r}
+library(readxl)
+salesXL <- read_excel('IBM_CAO.xlsx', sheet=3)
+head(salesXL)
+```
+## Find Revenue per Client
+```{r}
+library(dplyr)
+salesXL$DATE <- year(as.Date(salesXL$DATE, "%d/%m/Y%", tz="GMT"))
+salesXL <- salesXL %>% mutate(Client_Rev = NUM_LICENSE*PRICE_PER_LICENSE)
+
+head(salesXL) %>% 
+    select(DATE, CLIENT_ID, PRODUCT, NUM_LICENSE, PRICE_PER_LICENSE, Client_Rev)
+```
+## Group Revenue Growth by Product
+```{r}
+salesXL %>% select(DATE, PRODUCT, Client_Rev) %>%
+    spread(key=DATE, value = Client_Rev)
+```
+
+
+
+## Then, provide your recommendations for how to grow overall revenue. Please use the data attached to provide rationale for your recommendations.
+
+

@@ -1,4 +1,5 @@
 library(shiny)
+library(shinythemes)
 
 plotsPanel <- tabPanel(
     'Plots', 
@@ -26,9 +27,30 @@ plotsPanel <- tabPanel(
     )
 )
 
+mapPanel <- tabPanel(
+    title='Pizza', 
+    fluidRow(
+        column(
+            width=6, 
+            DT::dataTableOutput(
+                outputId = 'PizzaTable'
+            )
+        ),
+        column(
+            width=6, 
+            leaflet::leafletOutput(
+                outputId = 'PizzaMap'
+            )
+        )
+    )
+)
+    
+
 navbarPage(
     title='My First App',
-    selected='Plots',
+    selected='Pizza',
+    # themeSelector(),
+    theme=shinytheme(theme='cosmo'),
     tabPanel(
         'Sator', 
         'Hello World'
@@ -36,5 +58,6 @@ navbarPage(
     tabPanel(
         'Arepo'
     ), 
-    plotsPanel
+    plotsPanel, 
+    mapPanel
 )

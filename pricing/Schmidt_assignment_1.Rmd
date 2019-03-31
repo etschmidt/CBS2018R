@@ -1,0 +1,32 @@
+---
+title: 'Pricing #1'
+author: "Ethan T. Schmidt"
+date: "March 31, 2019"
+output: 
+    html_document:
+        toc: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What are the benefits fo the new pile pads?
+
+The new pads are more durable, meaning that they need to be replaced less frequently, and are more efficient, meaning that they dissapate heat more effectively and cause the pile to crack less. Additionally, the manufacturing process allows for any diameter pad to be made form the same strip of metal.
+
+## EVC of a new pile pad
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

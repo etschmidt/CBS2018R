@@ -1,0 +1,80 @@
+---
+title: "PASSNYC"
+author: "Ethan T. Schmidt"
+date: "October 24, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Read in the data
+
+```{r}
+library(magrittr)
+library(readxl)
+library(glmnet)
+
+school_data <- read_excel('NYC public schools data.xlsx')
+head(school_data)
+```
+
+# Math Plots
+```{r}
+library(useful)
+
+math_formula <- perc_math_above4 ~ grade + district + city + zip + grade_low + grade_high + econ_need_index + school_income_est + perc_ell + perc_asian + perc_black + perc_hispanic + perc_white + perc_attendance + perc_chron_absent + perc_rigorous_instruction + perc_collaborative_teachers + perc_supportive_environment + perc_effective_leadership + perc_community_ties + perc_trust + n_grades + in_manhattan - 1
+
+mathX_train <- build.x(math_formula, data=school_data, 
+                      contrast=FALSE, sparse=TRUE)
+
+mathY_train <- build.y(math_formula, data=school_data)
+
+math1 <- cv.glmnet(x=mathX_train, y=mathY_train, family='gaussian', nfolds=5, alpha=1)
+
+library(coefplot)
+plot(math1)
+```
+```{r}
+library(coefplot)
+coefpath(math1)
+```
+
+
+```{r}
+library(coefplot)
+
+coefplot(math1, sort='magnitude', lambda='lambda.1se', pointSize = 1)
+```
+# ELA Plots
+```{r}
+library(useful)
+
+ela_formula <- perc_ela_above4 ~ grade + district + city + zip + grade_low + grade_high + econ_need_index + school_income_est + perc_ell + perc_asian + perc_black + perc_hispanic + perc_white + perc_attendance + perc_chron_absent + perc_rigorous_instruction + perc_collaborative_teachers + perc_supportive_environment + perc_effective_leadership + perc_community_ties + perc_trust + n_grades + in_manhattan - 1
+
+elaX_train <- build.x(ela_formula, data=school_data, 
+                      contrast=FALSE, sparse=TRUE)
+
+elaY_train <- build.y(ela_formula, data=school_data)
+
+ela1 <- cv.glmnet(x=elaX_train, y=elaY_train, family='gaussian', nfolds=5, alpha=1)
+
+library(coefplot)
+plot(ela1)
+```
+```{r}
+library(coefplot)
+coefpath(math1)
+```
+
+
+```{r}
+library(coefplot)
+
+coefplot(ela1, sort='magnitude', lambda='lambda.1se')
+```
+
+```{r}
+multiplot(math1, ela1, pointSize = 1)
+```
