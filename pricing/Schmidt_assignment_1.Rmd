@@ -3,8 +3,9 @@ title: 'Pricing #1'
 author: "Ethan T. Schmidt"
 date: "March 31, 2019"
 output: 
-    html_document:
-        toc: TRUE
+    html_document: 
+        toc: yes
+       # css: solarized_dark.css
 ---
 
 ```{r setup, include=FALSE}
@@ -17,16 +18,70 @@ The new pads are more durable, meaning that they need to be replaced less freque
 
 ## EVC of a new pile pad
 
-```{r cars}
-summary(cars)
+```{r}
+#Total time saved IAW Kendrick test
+
+df <- data.frame("name" = c("Conv", "CMI"), "feet_driven" = c(150, 200), "piles_per_set" = c(15, 300), "pads_per_set"= c(24, 6), "sets_required" = c(20, 1), "set_changes" = c(20, 1), "time_per_change"= c(20, 4), "cost_per_set" = c(150, 0))
+
+df["total_change_time"] <- df$set_changes * df$time_per_change
+
+total_feet_needed <- 15000
+
+df['total_drive_time'] <- total_feet_needed / df$feet_drive 
+df['total_time'] <- (df$total_change_time / 60) + df$total_drive_time
+
+time_saved <- df$total_time[1] - df$total_time[2]
+
+cat('Time saved: ', time_saved)
+
+#Time savings in dollars
+df["total_pads_needed"] <- df$sets_required * df$pads_per_set
+cost_per_hour <- sum(102, 156, 24, 63, 30, 39) #excluding overhead
+
+own_equp <- .75
+value_of_time_saving <- time_saved * cost_per_hour
 ```
 
-## Including Plots
+```{r}
+#EVC 
 
-You can also embed plots, for example:
+df['cost_of_time'] <- df$total_time * cost_per_hour
 
-```{r pressure}
-plot(pressure)
+conv_cost_pads <- 150 * 20
+
+conv_total_cost <- df$cost_of_time[1] + conv_cost_pads
+
+CMI_set_cost <- conv_total_cost - df$cost_of_time[2]
+
+CMI_pad_cost <- CMI_set_cost / df$pads_per_set[2]
+
+cat('Pad Coast: ', CMI_pad_cost)
+```
+```{r}
+#Costs to produce
+
+manufacture_costs <- 207.54
+
+sugg_margin <- .5
+retail_margin <- .4
+
+sugg_price <- manufacture_costs * (1 / sugg_margin) * (1.4)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Price set for smallest pads
+
+If the total cost of a new pad is $207.54 and the EVC of the new pad to the consumer is $607.2, CMI should charge at least $600 per single pad, with price braks for larger quantities; this saves all the comsumers at least some money, while justifying the overhead allocation costs to re-tooling the new pads. 
+```{r}
+# Additional Capacity
+mkt_feet_year <- mean(290000000, 390000000)
+feet_per_set <- 10000
+sets_needed <- mkt_feet_year/feet_per_set
+pads_per_set <- 6
+pads_needed <- sets_needed/pads_per_set
+cat("Total Market Size in Pads:",pads_needed)
+capacity_needed_month <- pads_needed/12
+cat("Total Capacity per Month:",capacity_needed_month)
+```
+Although the market might need new pads, CMI will have a hard time convincing them; hwever, if they do, CMI will be able to command a very large market share. I recommend that CMI not purchase any additional capacity until they eceed a 50% market share and are continueing to grow.
+
+Key influencers to target would be the _Construction Engineers_ and the _Independent contractors_ becasue botht hese groups ae knowledgeable enough about the industry to recognize the importance of the new pads and neither have a conflicting interest in keeping construction times higher or more piles used.
