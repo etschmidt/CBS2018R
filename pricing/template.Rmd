@@ -1,0 +1,91 @@
+---
+title: "Assignment #2"
+author: "Ethan T. Schmidt"
+date: "April 10, 2019"
+output: 
+    html_document:
+        toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Orange Juice
+```{r}
+# load data
+library(readxl)
+
+sales_data <- read_excel('OJHW2.xlsx', 2) #second sheet in file
+
+head(sales_data)
+```
+
+## Accounting for Competition
+### Log-Log Regression of Sales
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+log_log_sales <- lm(lnsales1 ~ lnprice1 + lnprice2 + lnprice3, data = sales_data)
+
+summary(log_log_sales)
+```
+In log-log regressions, the beta fo the independent variables is the cross-price elasticity; these coefficients make sense because the own-brand price is invesely related to the sales, whereas when rivals raise their prices, the own-brand sales also rise.
+
+### Vulnerability
+```{r}
+log_log_sales[1]
+```
+```{r}
+cat(mean(sales_data$price1), mean(sales_data$price2), mean(sales_data$price3))
+```
+It appears that Minute Maid poses the largest threat because a price change in that product produces the largest effect on the sales of Tropicana. This makes sense because, on average, MM is very similarly price as Tropicana, which makes it appeal to the same customers.
+
+## Price Sensitivity
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Add new columns
+library(dplyr)
+
+sales_data <- sales_data %>% 
+    mutate(price_feature = lnprice1 * feat1)
+
+head(sales_data)
+```
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+hybrid_sales <- lm(lnsales1 ~ price_feature + lnprice1 + lnprice2 + lnprice3 + feat1 + feat2 + feat3, data = sales_data)
+
+summary(hybrid_sales)
+```
+The new price_feature variable shows that Tropicana is very elastic because featuring the it in the weekly brochure made the customers very aware of the price and amplified the price sensitivity.
+
+## Introduce a 192oz jug?
+I would not feel comfortable using my analysis for a the new product because it is in a different category that also have some initeractioneffects with this one; eg. consumers would be greatly affected by not only the price of the competitors for 192oz as well as the prices from all, including own-brand, 64oz jugs. 
+
+# Willingness to Pay Survey
+
+```{r}
+# Initial variables
+mean <- 38
+stdev <- 2.5
+m_cost <- 15
+market_size <- 25000
+```
+## Demand Estimate
+```{r}
+price <- 39
+
+demand <- pnorm(q = price, mean, stdev, lower.tail = FALSE)
+cat('Demand is: ',demand)
+```
+## Optimal Price & Profit
+```{r}
+# Current Profit
+profit_unit <- (price - m_cost)*demand
+profit_total <- profit_unit*market_size
+cat('Profit is : $',profit_total)
+```
+```{r}
+# Optimize profit
+f <- function(p) (p-m_cost)*(pnorm(p, mean, stdev, lower.tail = FALSE))
+
+xmax <- optimize(f, c(30, 100), maximum = TRUE)
+cat('Optimal price is: $',xmax$maximum)
+```

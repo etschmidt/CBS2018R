@@ -85,3 +85,14 @@ cat("Total Capacity per Month:",capacity_needed_month)
 Although the market might need new pads, CMI will have a hard time convincing them; hwever, if they do, CMI will be able to command a very large market share. I recommend that CMI not purchase any additional capacity until they eceed a 50% market share and are continueing to grow.
 
 Key influencers to target would be the _Construction Engineers_ and the _Independent contractors_ becasue botht hese groups ae knowledgeable enough about the industry to recognize the importance of the new pads and neither have a conflicting interest in keeping construction times higher or more piles used.
+
+----------------------------------------------------
+
+# ACCORD FRAMEWORK
+1.  Advantage
+2.  Complexity 
+3.  Compatitbility
+4.  Observability
+5.  Risk
+6.  Divisibility
+
