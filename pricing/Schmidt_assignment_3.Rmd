@@ -1,0 +1,27 @@
+---
+title: "Assignment #3"
+author: "Ethan T. Schmidt"
+date: "April 21, 2019"
+output: 
+    html_document:
+        toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Survey Concerns
+
+
+# Key Findings
+
+
+# Pricing Plan
+## How much revenue is needed
+## Percentage of consumers willing to purchase
+## Expected reventue & profits
+## Optimal Prices
+
+# Excess Capacity
+
+# Breakeven
