@@ -133,8 +133,8 @@ $(document).ready(function () {
 <li><a href="#survey-concerns">Survey Concerns</a></li>
 <li><a href="#key-findings">Key Findings</a></li>
 <li><a href="#pricing-plan">Pricing Plan</a><ul>
-<li><a href="#how-much-revenue-is-needed">How much revenue is needed</a></li>
-<li><a href="#percentage-of-consumers-willing-to-purchase">Percentage of consumers willing to purchase</a></li>
+<li><a href="#revenue-to-cover-fixed-costs">Revenue to cover fixed costs</a></li>
+<li><a href="#percentage-of-consumers-willing-to-purchase-revenue-matrix">Percentage of consumers willing to purchase &amp; revenue matrix</a></li>
 <li><a href="#expected-reventue-profits">Expected reventue &amp; profits</a></li>
 <li><a href="#optimal-prices">Optimal Prices</a></li>
 </ul></li>
@@ -145,30 +145,182 @@ $(document).ready(function () {
 
 <div id="survey-concerns" class="section level1">
 <h1>Survey Concerns</h1>
+<p>Buckingham’s survey is a definitely a step in the right direction; he is better off with new information that he collects himself than older, more irrelevant data. However, he would get clearer results if he expanded the range of the survey participants and if he asked for customer values for the tickets through indirect questions. The mailing list only included Springfield residents, obtained form cencus and other sports teams’ data, but there may be a significant potential for non-residents to enjoy the games, either as visitors, college students coming from another town, or die-hard Red Sox fans coming to watch up-and-coming players; Buckinghams’ survey will not capture these consumer preferences. Second, the survey explicitly asks for WTP for a certain number of games, but Buckingham is not offering a single product per game, but rather is offering different tiers within the stadium – a respondant who may only value a single game in the bleachers at $2, below the average, but a box seat at $500, well above the average for that tier, is not accuratly portrayed by the survey. Also, question #13 doesn’t capture a consumer who would pay less than $6 but more than $5 for concessions.</p>
+<p>Survey does not indicate that concession WTP distribution is uniform across ticket package type; season ticket holders might be more likely to purchase more concessions.</p>
 </div>
 <div id="key-findings" class="section level1">
 <h1>Key Findings</h1>
+<ul>
+<li>More than half of respondents say they would not attend a game, and very few would want season tickets.</li>
+<li>Residents expect significant price breaks per ticket on bulk orders.</li>
+<li>Many people say they would be willing to pay almost as much on cencessions as they would on the tickets per game.</li>
+</ul>
 </div>
 <div id="pricing-plan" class="section level1">
 <h1>Pricing Plan</h1>
-<div id="how-much-revenue-is-needed" class="section level2">
-<h2>How much revenue is needed</h2>
+<div id="revenue-to-cover-fixed-costs" class="section level2">
+<h2>Revenue to cover fixed costs</h2>
+<pre class="r"><code>fixed_costs &lt;- 1961379
+
+#provided by the MLB
+salaries &lt;- 88700
+bats_ball &lt;- 22500
+
+fixed_costs &lt;- fixed_costs - salaries - bats_ball
+
+fixed_costs</code></pre>
+<pre><code>## [1] 1850179</code></pre>
 </div>
-<div id="percentage-of-consumers-willing-to-purchase" class="section level2">
-<h2>Percentage of consumers willing to purchase</h2>
+<div id="percentage-of-consumers-willing-to-purchase-revenue-matrix" class="section level2">
+<h2>Percentage of consumers willing to purchase &amp; revenue matrix</h2>
+<pre class="r"><code>library(readxl)
+
+cumPct &lt;- read_excel(&quot;SpringfieldNoreastersData.xlsx&quot;, sheet = &quot;b&quot;)
+cumPct</code></pre>
+<pre><code>## # A tibble: 4 x 8
+##   Type     `Less than $4`   `4`   `6`   `8`  `10`  `12`  `14`
+##   &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Single                1  1     0.98  0.93  0.8   0.49  0.22
+## 2 5 Games               1  0.99  0.97  0.94  0.75  0.39  0.05
+## 3 20 Games              1  0.99  0.92  0.69  0.41  0.16  0.01
+## 4 Season                1  0.82  0.56  0.36  0.22  0.11  0.01</code></pre>
+<pre class="r"><code>library(dplyr)
+
+totalRes &lt;- 55338
+
+# find potential revenue from stated WTP
+revMatrix &lt;- cumPct %&gt;%
+    mutate(twoRev = (cumPct$`Less than $4`*totalRes)*2) %&gt;% 
+    mutate(fourRev = (cumPct$`4`*totalRes)*4) %&gt;% 
+    mutate(sixRev = (cumPct$`6`*totalRes)*6) %&gt;% 
+    mutate(eightRev = (cumPct$`8`*totalRes)*8) %&gt;% 
+    mutate(tenRev = (cumPct$`10`*totalRes)*10) %&gt;% 
+    mutate(twelveRev = (cumPct$`12`*totalRes)*12) %&gt;% 
+    mutate(fourteenRev = (cumPct$`14`*totalRes)*14)
+
+revMatrix &lt;- select(revMatrix, -c(1:8))
+
+revMatrix</code></pre>
+<pre><code>## # A tibble: 4 x 7
+##   twoRev fourRev  sixRev eightRev  tenRev twelveRev fourteenRev
+##    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+## 1 110676 221352  325387.  411715. 442704    325387.     170441.
+## 2 110676 219138. 322067.  416142. 415035    258982.      38737.
+## 3 110676 219138. 305466.  305466. 226886.   106249.       7747.
+## 4 110676 181509. 185936.  159373. 121744.    73046.       7747.</code></pre>
 </div>
 <div id="expected-reventue-profits" class="section level2">
 <h2>Expected reventue &amp; profits</h2>
+<pre class="r"><code>foodMargin &lt;- .39
+
+#calculate the concession revenue
+pct &lt;- c(.08, .11, .45, .36)
+avgSpend &lt;- c(0, mean(1:5), mean(5:10), mean(11:15))
+cons &lt;- data.frame(avgSpend, pct)
+
+cons &lt;- cons %&gt;%
+    mutate(revGame = (pct*totalRes)*avgSpend, 
+           rev5 = revGame*5,
+           rev20 = revGame*20, 
+           rev38 = revGame*38) 
+
+cons &lt;- data.frame(t(cons)[-c(1:2), ])
+
+# get profit from revenues
+cons &lt;- cons*foodMargin
+colnames(cons)[1] &lt;- &quot;0&quot;
+colnames(cons)[2] &lt;- &quot;5&quot;
+colnames(cons)[3] &lt;- &quot;10&quot;
+colnames(cons)[4] &lt;- &quot;15&quot;
+
+# adjust for planned attendance
+pctAttend &lt;- c(.21, .11, .05, .02)
+cons$pctAttend &lt;- pctAttend
+
+cons$adj5 &lt;- cons$`5`*cons$pctAttend
+cons$adj10 &lt;- cons$`10`*cons$pctAttend
+cons$adj15 &lt;- cons$`15`*cons$pctAttend
+
+cons$total &lt;- (cons$adj5 + cons$adj10 + cons$adj15)
+
+cons</code></pre>
+<pre><code>##         0          5         10        15 pctAttend     adj5    adj10
+## revGame 0   7122.001   72838.64  101002.9      0.21 1495.620 15296.11
+## rev5    0  35610.003  364193.21  505014.6      0.11 3917.100 40061.25
+## rev20   0 142440.012 1456772.85 2020058.4      0.05 7122.001 72838.64
+## rev38   0 270636.023 2767868.42 3838110.9      0.02 5412.720 55357.37
+##             adj15     total
+## revGame  21210.61  38002.35
+## rev5     55551.60  99529.96
+## rev20   101002.92 180963.56
+## rev38    76762.22 137532.31</code></pre>
 </div>
 <div id="optimal-prices" class="section level2">
 <h2>Optimal Prices</h2>
+<pre class="r"><code># remoced 61% of respondents who do not attend any game
+pctAttend &lt;- c(.21, .11, .05, .02)
+
+revMatrix &lt;- cbind(pctAttend = pctAttend, revMatrix)</code></pre>
+<pre class="r"><code># multiply percent attendance by expected revenue per segment
+revMatrix[2] &lt;- revMatrix[2]*revMatrix$pctAttend
+revMatrix[3] &lt;- revMatrix[3]*revMatrix$pctAttend
+revMatrix[4] &lt;- revMatrix[4]*revMatrix$pctAttend
+revMatrix[5] &lt;- revMatrix[5]*revMatrix$pctAttend
+revMatrix[6] &lt;- revMatrix[6]*revMatrix$pctAttend
+revMatrix[7] &lt;- revMatrix[7]*revMatrix$pctAttend
+revMatrix[8] &lt;- revMatrix[8]*revMatrix$pctAttend
+revMatrix</code></pre>
+<pre><code>##   pctAttend   twoRev   fourRev    sixRev  eightRev    tenRev twelveRev
+## 1      0.21 23241.96 46483.920 68331.362 86460.091 92967.840 68331.362
+## 2      0.11 12174.36 24105.233 35427.388 45775.594 45653.850 28488.002
+## 3      0.05  5533.80 10956.924 15273.288 15273.288 11344.290  5312.448
+## 4      0.02  2213.52  3630.173  3718.714  3187.469  2434.872  1460.923
+##   fourteenRev
+## 1  35792.6184
+## 2   4261.0260
+## 3    387.3660
+## 4    154.9464</code></pre>
+<pre class="r"><code># make new df
+profMatrix &lt;- revMatrix
+colnames(profMatrix)[2:8] &lt;- c(&quot;&lt;$4&quot;, 4, 6, 8, 10, 12, 14)
+
+# get max profits
+optProf &lt;- apply(profMatrix, 1, max)
+optPrices &lt;- as.double(names(profMatrix)[apply(profMatrix, 1, which.max)])
+optMatrix &lt;- data.frame(cumPct$Type, optPrices, optProf)
+optMatrix$optProf &lt;- c(92967, (45775*5), (15273*20), (3718*38))
+
+#add in concessions
+optMatrix$consProf &lt;- cons$total
+
+optMatrix</code></pre>
+<pre><code>##   cumPct.Type optPrices optProf  consProf
+## 1      Single        10   92967  38002.35
+## 2     5 Games         8  228875  99529.96
+## 3    20 Games         6  305460 180963.56
+## 4      Season         6  141284 137532.31</code></pre>
 </div>
 </div>
 <div id="excess-capacity" class="section level1">
 <h1>Excess Capacity</h1>
+<pre class="r"><code>capacity &lt;- 3600
+gamesSeason &lt;- 38
+total_cap &lt;- capacity*gamesSeason
+
+optMatrix &lt;- optMatrix %&gt;% 
+    mutate(seats = optProf / optPrices)
+
+total_cap - sum(optMatrix$seats)</code></pre>
+<pre><code>## [1] 24436.59</code></pre>
+<p>Technically, there may be excess capacity throughout the season, but in reality some games will not have enough (most of the single-game tickets will be purchased for the same few popular games), and other times in the season there will be for more excess than planned. The Noreasters should strive to balance out the demand for games by perhaps enticing those “single game” fans into off-peak games with giveaways for hats and bobbleheads.</p>
 </div>
 <div id="breakeven" class="section level1">
 <h1>Breakeven</h1>
+<pre class="r"><code># all ticket profit, optimized
+optMatrix$tot &lt;- optMatrix$optProf + optMatrix$consProf
+sum(optMatrix$tot) - fixed_costs</code></pre>
+<pre><code>## [1] -625564.8</code></pre>
+<p>It does not look like the Noreasters will break even, but then again my calculations could be very wrong</p>
 </div>
 
 

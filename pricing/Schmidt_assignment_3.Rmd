@@ -7,21 +7,152 @@ output:
         toc: true
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
 ```
 
 # Survey Concerns
+Buckingham's survey is a definitely a step in the right direction; he is better off with new information that he collects himself than older, more irrelevant data. However, he would get clearer results if he expanded the range of the survey participants and if he asked for customer values for the tickets through indirect questions. The mailing list only included Springfield residents, obtained form cencus and other sports teams' data, but there may be a significant potential for non-residents to enjoy the games, either as visitors, college students coming from another town, or die-hard Red Sox fans coming to watch up-and-coming players; Buckinghams' survey will not capture these consumer preferences. Second, the survey explicitly asks for WTP for a certain number of games, but Buckingham is not offering a single product per game, but rather is offering different tiers within the stadium -- a respondant who may only value a single game in the bleachers at $2, below the average, but a box seat at $500, well above the average for that tier, is not accuratly portrayed by the survey. Also, question #13 doesn't capture a consumer who would pay less than $6 but more than $5 for concessions.
 
+Survey does not indicate that concession WTP distribution is uniform across ticket package type; season ticket holders might be more likely to purchase more concessions.
 
 # Key Findings
-
+* More than half of respondents say they would not attend a game, and very few would want season tickets. 
+* Residents expect significant price breaks per ticket on bulk orders. 
+* Many people say they would be willing to pay almost as much on cencessions as they would on the tickets per game.
 
 # Pricing Plan
-## How much revenue is needed
-## Percentage of consumers willing to purchase
-## Expected reventue & profits
-## Optimal Prices
+## Revenue to cover fixed costs
+```{r}
+fixed_costs <- 1961379
 
+#provided by the MLB
+salaries <- 88700
+bats_ball <- 22500
+
+fixed_costs <- fixed_costs - salaries - bats_ball
+
+fixed_costs
+```
+
+## Percentage of consumers willing to purchase & revenue matrix
+```{r }
+library(readxl)
+
+cumPct <- read_excel("SpringfieldNoreastersData.xlsx", sheet = "b")
+cumPct
+```
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+
+totalRes <- 55338
+
+# find potential revenue from stated WTP
+revMatrix <- cumPct %>%
+    mutate(twoRev = (cumPct$`Less than $4`*totalRes)*2) %>% 
+    mutate(fourRev = (cumPct$`4`*totalRes)*4) %>% 
+    mutate(sixRev = (cumPct$`6`*totalRes)*6) %>% 
+    mutate(eightRev = (cumPct$`8`*totalRes)*8) %>% 
+    mutate(tenRev = (cumPct$`10`*totalRes)*10) %>% 
+    mutate(twelveRev = (cumPct$`12`*totalRes)*12) %>% 
+    mutate(fourteenRev = (cumPct$`14`*totalRes)*14)
+
+revMatrix <- select(revMatrix, -c(1:8))
+
+revMatrix
+```
+
+## Expected reventue & profits
+```{r}
+foodMargin <- .39
+
+#calculate the concession revenue
+pct <- c(.08, .11, .45, .36)
+avgSpend <- c(0, mean(1:5), mean(5:10), mean(11:15))
+cons <- data.frame(avgSpend, pct)
+
+cons <- cons %>%
+    mutate(revGame = (pct*totalRes)*avgSpend, 
+           rev5 = revGame*5,
+           rev20 = revGame*20, 
+           rev38 = revGame*38) 
+
+cons <- data.frame(t(cons)[-c(1:2), ])
+
+# get profit from revenues
+cons <- cons*foodMargin
+colnames(cons)[1] <- "0"
+colnames(cons)[2] <- "5"
+colnames(cons)[3] <- "10"
+colnames(cons)[4] <- "15"
+
+# adjust for planned attendance
+pctAttend <- c(.21, .11, .05, .02)
+cons$pctAttend <- pctAttend
+
+cons$adj5 <- cons$`5`*cons$pctAttend
+cons$adj10 <- cons$`10`*cons$pctAttend
+cons$adj15 <- cons$`15`*cons$pctAttend
+
+cons$total <- (cons$adj5 + cons$adj10 + cons$adj15)
+
+cons
+```
+## Optimal Prices
+```{r}
+# remoced 61% of respondents who do not attend any game
+pctAttend <- c(.21, .11, .05, .02)
+
+revMatrix <- cbind(pctAttend = pctAttend, revMatrix)
+```
+
+```{r}
+# multiply percent attendance by expected revenue per segment
+revMatrix[2] <- revMatrix[2]*revMatrix$pctAttend
+revMatrix[3] <- revMatrix[3]*revMatrix$pctAttend
+revMatrix[4] <- revMatrix[4]*revMatrix$pctAttend
+revMatrix[5] <- revMatrix[5]*revMatrix$pctAttend
+revMatrix[6] <- revMatrix[6]*revMatrix$pctAttend
+revMatrix[7] <- revMatrix[7]*revMatrix$pctAttend
+revMatrix[8] <- revMatrix[8]*revMatrix$pctAttend
+revMatrix
+```
+```{r}
+# make new df
+profMatrix <- revMatrix
+colnames(profMatrix)[2:8] <- c("<$4", 4, 6, 8, 10, 12, 14)
+
+# get max profits
+optProf <- apply(profMatrix, 1, max)
+optPrices <- as.double(names(profMatrix)[apply(profMatrix, 1, which.max)])
+optMatrix <- data.frame(cumPct$Type, optPrices, optProf)
+optMatrix$optProf <- c(92967, (45775*5), (15273*20), (3718*38))
+
+#add in concessions
+optMatrix$consProf <- cons$total
+
+optMatrix
+```
 # Excess Capacity
+```{r}
+capacity <- 3600
+gamesSeason <- 38
+total_cap <- capacity*gamesSeason
+
+optMatrix <- optMatrix %>% 
+    mutate(seats = optProf / optPrices)
+
+total_cap - sum(optMatrix$seats)
+```
+Technically, there may be excess capacity throughout the season, but in reality some games will not have enough (most of the single-game tickets will be purchased for the same few popular games), and other times in the season there will be for more excess than planned. The Noreasters should strive to balance out the demand for games by perhaps enticing those "single game" fans into off-peak games with giveaways for hats and bobbleheads.
 
 # Breakeven
+```{r}
+# all ticket profit, optimized
+optMatrix$tot <- optMatrix$optProf + optMatrix$consProf
+sum(optMatrix$tot) - fixed_costs
+```
+It does not look like the Noreasters will break even, but then again my calculations could be very wrong
