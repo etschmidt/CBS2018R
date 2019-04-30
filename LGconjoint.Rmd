@@ -1,0 +1,24 @@
+---
+title: "LGconjoint"
+author: "Ethan T. Schmidt"
+date: "April 28, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+## Import Data
+```{r}
+library(readxl)
+
+LG <- read_excel("LGconjoint.xlsx", sheet = "Clean")
+
+head(LG)
+```
+
