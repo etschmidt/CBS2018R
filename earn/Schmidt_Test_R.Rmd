@@ -1,0 +1,61 @@
+---
+title: "Earn.org Test"
+author: "Ethan T. Schmidt"
+date: "May 20, 2019"
+output: 
+    html_document:
+        toc: true
+---
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+#load data & packages
+library(dplyr)
+
+salaries <- read.csv('salary_data.csv')
+head(salaries)
+```
+# Which departments have the highest and lowest average salaries?
+```{r}
+#convert salary data type 
+salaries$salary <- as.numeric(substring(salaries$salary, 2))
+
+#group by department
+avgs <- salaries %>% 
+        group_by(department) %>% 
+        summarize(avg_sal=mean(salary)) %>% 
+        arrange(desc(avg_sal))
+
+#highest average salary
+filter(avgs, row_number()==1)
+#lowest avaerage salary
+filter(avgs, row_number()==n())
+```
+# How many different job titles are there that are held by at least 10 people?
+```{r}
+#group by job_title
+titles <- salaries %>% 
+        group_by(job_title) %>%
+        add_count() %>% 
+        filter(n>=10)
+
+count(titles)
+```
+# Of those job titles held by at least 10 people, which one has the highest median salary?
+```{r}
+titles <- titles %>% 
+        summarize(median=median(salary)) %>% 
+        arrange(desc(median))
+
+head(titles, 2)
+```
+# How many people have the word "Engineer" in their job title.
+```{r}
+
+```
+
+# Of the people who with "Engineer" in their Job, what percentage of them are Civil Engineers?
+
+# How many people joined the Fire Department in 2000 between July 1st and September 15th?
