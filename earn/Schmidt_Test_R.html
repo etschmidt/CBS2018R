@@ -188,24 +188,13 @@ filter(avgs, row_number()==n())</code></pre>
 titles &lt;- salaries %&gt;% 
         group_by(job_title) %&gt;%
         add_count() %&gt;% 
-        filter(n&gt;=10)
+        filter(n&gt;=10) 
 
-count(titles)</code></pre>
-<pre><code>## # A tibble: 273 x 2
-## # Groups:   job_title [273]
-##    job_title                             nn
-##    &lt;fct&gt;                              &lt;int&gt;
-##  1 ACCOUNTANT I                          10
-##  2 ACCOUNTANT II                         18
-##  3 ACCOUNTANT III                        26
-##  4 ACCOUNTANT IV                         29
-##  5 ACCOUNTING TECHNICIAN I               10
-##  6 ACCOUNTING TECHNICIAN II              45
-##  7 ADMINISTRATIVE ASST                   27
-##  8 ADMINISTRATIVE ASST II               146
-##  9 ADMINISTRATIVE ASST III              113
-## 10 ADMINISTRATIVE ASST III - EXCLUDED    17
-## # ... with 263 more rows</code></pre>
+titles2 &lt;- titles %&gt;% 
+        summarize(count=n())
+
+cat('Number of different job titles are there that are held by at least 10 people: ', length(titles2$count))</code></pre>
+<pre><code>## Number of different job titles are there that are held by at least 10 people:  273</code></pre>
 </div>
 <div id="of-those-job-titles-held-by-at-least-10-people-which-one-has-the-highest-median-salary" class="section level1">
 <h1>Of those job titles held by at least 10 people, which one has the highest median salary?</h1>
@@ -222,12 +211,35 @@ head(titles, 2)</code></pre>
 </div>
 <div id="how-many-people-have-the-word-engineer-in-their-job-title." class="section level1">
 <h1>How many people have the word “Engineer” in their job title.</h1>
+<pre class="r"><code>#easy, quick way to get count that matches string
+
+cat('Number of engineers: ', length(grep('ENGINEER', salaries$job_title)))</code></pre>
+<pre><code>## Number of engineers:  1309</code></pre>
 </div>
 <div id="of-the-people-who-with-engineer-in-their-job-what-percentage-of-them-are-civil-engineers" class="section level1">
 <h1>Of the people who with “Engineer” in their Job, what percentage of them are Civil Engineers?</h1>
+<pre class="r"><code>#more useful way of getting values
+engineers &lt;- salaries %&gt;% 
+            filter(grepl('ENGINEER', job_title))
+
+civils &lt;- engineers %&gt;% 
+        filter(grepl('CIVIL ENGINEER', job_title))
+
+cat('Percentage of engineers who are civil engineers: %', first(count(civils)/count(engineers)*100))</code></pre>
+<pre><code>## Percentage of engineers who are civil engineers: % 4.889228</code></pre>
 </div>
 <div id="how-many-people-joined-the-fire-department-in-2000-between-july-1st-and-september-15th" class="section level1">
 <h1>How many people joined the Fire Department in 2000 between July 1st and September 15th?</h1>
+<pre class="r"><code>#convert date types
+salaries$Join.Date &lt;- as.Date(salaries$Join.Date)
+
+#filter by department and date
+firedept &lt;- salaries %&gt;% 
+        filter(department=='FIRE') %&gt;% 
+        filter(Join.Date&gt;='2000-06-01' &amp; Join.Date&gt;='2000-09-15')
+
+cat('Number of people joined the Fire Department in 2000 between July 1st and September 15th: ', first(count(firedept)))</code></pre>
+<pre><code>## Number of people joined the Fire Department in 2000 between July 1st and September 15th:  1355</code></pre>
 </div>
 
 

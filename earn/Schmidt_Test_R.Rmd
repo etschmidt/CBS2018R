@@ -39,9 +39,12 @@ filter(avgs, row_number()==n())
 titles <- salaries %>% 
         group_by(job_title) %>%
         add_count() %>% 
-        filter(n>=10)
+        filter(n>=10) 
 
-count(titles)
+titles2 <- titles %>% 
+        summarize(count=n())
+
+cat('Number of different job titles are there that are held by at least 10 people: ', length(titles2$count))
 ```
 # Of those job titles held by at least 10 people, which one has the highest median salary?
 ```{r}
@@ -53,9 +56,31 @@ head(titles, 2)
 ```
 # How many people have the word "Engineer" in their job title.
 ```{r}
+#easy, quick way to get count that matches string
 
+cat('Number of engineers: ', length(grep('ENGINEER', salaries$job_title)))
+```
+# Of the people who with "Engineer" in their Job, what percentage of them are Civil Engineers?
+```{r}
+#more useful way of getting values
+engineers <- salaries %>% 
+            filter(grepl('ENGINEER', job_title))
+
+civils <- engineers %>% 
+        filter(grepl('CIVIL ENGINEER', job_title))
+
+cat('Percentage of engineers who are civil engineers: %', first(count(civils)/count(engineers)*100))
+```
+# How many people joined the Fire Department in 2000 between July 1st and September 15th?
+```{r}
+#convert date types
+salaries$Join.Date <- as.Date(salaries$Join.Date)
+
+#filter by department and date
+firedept <- salaries %>% 
+        filter(department=='FIRE') %>% 
+        filter(Join.Date>='2000-06-01' & Join.Date>='2000-09-15')
+
+cat('Number of people joined the Fire Department in 2000 between July 1st and September 15th: ', first(count(firedept)))
 ```
 
-# Of the people who with "Engineer" in their Job, what percentage of them are Civil Engineers?
-
-# How many people joined the Fire Department in 2000 between July 1st and September 15th?
